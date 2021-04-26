@@ -25,7 +25,7 @@ const Navbar = () => {
   return (
     <header>
       <nav>
-        <MenuItem icon={<Logo />} to="/" className="nav-item--primary">
+        <MenuItem  icon={<Logo />} to="/" className="nav-item--primary">
           TerraPay
         </MenuItem>
 

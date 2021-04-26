@@ -1,6 +1,6 @@
 const Logo = () => {
     return (
-        <svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="40" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g filter="url(#filter0_d)">
         <circle cx="110" cy="106" r="100" fill="white"/>
         </g>

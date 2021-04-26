@@ -3,6 +3,7 @@ import { Router } from '@reach/router';
 import logo from './logo.svg';
 
 import './App.scss';
+import './App.less';
 
 import NavBar from './components/NavBar'
 import BuyerChoices from './pages/BuyerChoices'

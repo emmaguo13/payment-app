@@ -42,8 +42,8 @@ function UserStatus() {
           {loading ? (
             <div> Loading </div>
           ) : (
-            data.map((deed, index) => (
-              <ItemCard deed={deed} onClick={() => navigate(`/deed/${deed.deedId}`)} />
+            data.map((merchant, index) => (
+              <ItemCard merchant={merchant} onClick={() => navigate(`/buyerPayment?itemName=${merchant.items.itemName}&itemAddress=${merchant.address}`)} />
             ))
           )}
         </div>

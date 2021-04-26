@@ -1,28 +1,22 @@
 .home {
     .jumbotron {
-      position: relative;
-      
-      svg {
-        position: absolute;
-        width: 70%;
-        margin-left: 10%;
-        margin-top: 3rem;
-      }
-      
-      aside {
-        display: block;
-        position: absolute;
-        top: 5rem;
-        right: 3rem;
-        max-width: 500px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
   
         h1 {
-          display: block;
+          text-align: center;
           width: 100%;
           font-size: 3rem;
           line-height: 1.2;
           font-weight: 600;
+          margin-top: 12%;
+          margin-bottom: 1%;
         }
-      }
+        
+        p {
+          margin: 0%;
+        }
     }
   }

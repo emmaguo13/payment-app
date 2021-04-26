@@ -33,7 +33,7 @@ router.post('/email', async (req, res) => {
         service: 'yahoo',
         auth: {
           user: 'emmag013@yahoo.ca',
-          pass: 'onpb ytrr hutg nnme'
+          pass: process.env.EMAIL_PASS
         }
       });
       

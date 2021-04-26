@@ -45,9 +45,9 @@ router.post('/addItems', async (req, res) => {
     if (!merchant) {
         return res.status(400).send('Merchant does not exist');
     }
-    for (var i = 0; i < items.length; i++) {
-        merchant.items.push(items[i]);
-    }
+    
+    merchant.items.push(items[i]);
+    
     await merchant.save();
     await res.status(200).send(address);
 

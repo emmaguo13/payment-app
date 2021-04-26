@@ -1,13 +1,13 @@
-$page-width: 800px;
+$page-width: 90%;
 
-$primary-300: #c2dc7f; // Background color
-$primary-500: #8A9868;
+$primary-300: #ffffff; // Background color
+$primary-500: #08447c;
 $primary-600: #727E56; // Darker background
 $primary-700: #5B7044;
 $primary-800: #3B412D;
 $primary-900: #2c3b48;
 
-$secondary-500: #f8e4a4;
+$secondary-500: #2043B4;
 
 @import "./styles/index.scss";
 @import "./styles/Layout.scss";
@@ -15,4 +15,4 @@ $secondary-500: #f8e4a4;
 @import "./styles/Button.scss";
 
 @import "./styles/pages/Home.scss";
-//@import "./styles/pages/Form.scss"
+@import "./styles/pages/Listing.scss"
