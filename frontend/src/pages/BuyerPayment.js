@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Tabs, Input, Upload, message } from 'antd';
-import { LCDClient, MnemonicKey } from '@terra-money/terra.js';
-import { navigate } from '@reach/router';
+import { LCDClient, MnemonicKey, MsgSend } from '@terra-money/terra.js';
+import { useLocation } from '@reach/router'
+import { parse } from 'query-string'
 require('dotenv').config();
 
 
 const { TextArea } = Input;
 
-function Form() {
-  const [itemName, setItemName] = useState('');
-  const [itemPrice, setItemPrice] = useState('');
-  const [sellerName, setSellerName] = useState('');
-  const [sellerEmail, setSellerEmail] = useState('');
-  const [selectedFile, setSelectedFile] = useState();
-  
+function Payment() {
+  const [buyerEmail, setBuyerEmail] = useState('');
+  const [buyerName, setBuyerName] = useState('');
+  const [loading, setLoading] = useState(true);
 
+  const location = useLocation();
+    const searchParams = parse(location.search)
+    console.log(searchParams)
+  
   function handleSubmit() {
     console.log(process.env.REACT_APP_SERVER_URL);
 
@@ -22,16 +24,20 @@ function Form() {
     const mk = new MnemonicKey();
     const address = mk.accAddress
     console.log(address)
-    fetch(`${process.env.REACT_APP_SERVER_URL}/api/merchant/newMerchant`, {
+
+    //get chosen item
+    let initiatedPayments = [];
+    initiatedPayments.push({
+        itemName: searchParams.item,
+        itemPrice: searchParams.price, 
+      })
+    
+    fetch(`${process.env.REACT_APP_SERVER_URL}/api/buyer/newBuyer`, {
       body: JSON.stringify({
-        name: sellerName,
-        items: {
-          itemName,
-          itemPrice, 
-          selectedFile,
-        },
+        name: buyerName,
+        initiatedPayments,
         address: address,
-        email: sellerEmail,
+        email: buyerEmail,
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -39,13 +45,69 @@ function Form() {
       method: 'POST',
     }).then((response) => {
       console.log('merchant address', response.body);
-      navigate(`/buyerPayment`);
     });
-  }
 
-  function fileSelectedHandler(e) {
-    console.log(e.target.files[0]);
-    setSelectedFile(e.target.files[0]);
+    //make transaction 
+    // connect to soju testnet
+     const terra = new LCDClient({
+        URL: 'https://soju-lcd.terra.dev',
+        chainID: 'soju-0014',
+    });
+
+    // a wallet can be created out of any key
+    // wallets abstract transaction building
+    const wallet = terra.wallet(mk);
+
+    // create a simple message that moves coin balances
+    const send = new MsgSend(
+    searchParams.address,
+    address,
+    { uusd: searchParams.price }
+    );
+
+    wallet
+    .createAndSignTx({
+        msgs: [send],
+        memo: 'test from terra.js!',
+    })
+    .then(tx => terra.tx.broadcast(tx))
+    .then(result => {
+        console.log(`TX hash: ${result.txhash}`);
+        setLoading(false)
+    });
+    /*
+    if (!loading) {
+    //remove from buyer
+    fetch(`${process.env.REACT_APP_SERVER_URL}/api/merchant/removeItems`, {
+        body: JSON.stringify({
+
+            itemName: item,
+            itemPrice: price, 
+            address: add,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+    })
+    //email
+    fetch(`${process.env.REACT_APP_SERVER_URL}/api/buyer/email`, {
+        body: JSON.stringify({
+
+            itemName: item,
+            itemPrice: price, 
+            email,
+            address: add,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+    }) 
+
+    }
+    */
+
   }
 
   return (
@@ -53,7 +115,7 @@ function Form() {
      
         <div className="form">
           <div style={{ fontSize: '40px',  fontWeight: '700' }}>
-            Create a Listing
+            Buy Item
           </div>
           <div className="contents-align">
             <div className="form-display">
@@ -69,43 +131,20 @@ function Form() {
                   marginTop: '2vh',
                 }}
               >
-                <div style={{ fontSize: '15px', marginTop: '2vh' }}>Seller Name</div>
+                <div style={{ fontSize: '15px', marginTop: '2vh' }}>Name</div>
                 <Input
                   style={{ borderRadius: '1vw', size: 'small' }}
-                  onChange={(event) => setSellerName(event.target.value)}
+                  onChange={(event) => setBuyerName(event.target.value)}
                 />
 
                 <div style={{ fontSize: '15px', marginTop: '2vh' }}>Email</div>
                 <Input
                   style={{ borderRadius: '1vw', size: 'small' }}
-                  onChange={(event) => setSellerEmail(event.target.value)}
+                  onChange={(event) => setBuyerEmail(event.target.value)}
                   multiple
                   text="email"
                 />
-
-                <div style={{ fontSize: '15px', marginTop: '2vh' }}>Item Name</div>
-                <Input
-                  style={{ borderRadius: '1vw', size: 'small' }}
-                  onChange={(event) => setItemName(event.target.value)}
-                  multiple
-                />
-
-                <div style={{ fontSize: '15px', marginTop: '2vh' }}>Item Price</div>
-                <Input
-                  style={{ borderRadius: '1vw', size: 'small' }}
-                  onChange={(event) => setItemPrice(event.target.value)}
-                  multiple
-                />
                 
-                <div style={{ fontSize: '15px', marginTop: '2vh' }}>Item Image</div>
-                <input
-                  style={{ marginLeft:'13vw', size: 'small' }}
-                  // onChange={(event) => setItemPrice(event.target.value)}
-                  // multiple
-                  type="file"
-                  onChange={fileSelectedHandler}
-                />
-
               </div>
             </div>
           </div>
@@ -114,11 +153,11 @@ function Form() {
             onClick={handleSubmit}
             className="button button--secondary"
           >
-            Apply 
+            Complete Purchase 
           </Button>
         </div>
     </>
   );
 }
 
-export default Form;
+export default Payment;

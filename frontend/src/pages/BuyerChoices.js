@@ -16,7 +16,7 @@ function UserStatus() {
         `${process.env.REACT_APP_SERVER_URL}/api/merchant/getAllMerchants`
       );
       console.log(data)
-      //setData(data.deeds);
+      setData(data);
       setLoading(false);
     };
     getData();
@@ -28,14 +28,14 @@ function UserStatus() {
         <div
           style={{
             width: '90vw',
-            height: '90vh',
-            backgroundColor: 'rgba(73, 194, 104, 0.42)',
+            height: '100%',
             borderTopLeftRadius: '2vw',
             borderTopRightRadius: '2vw',
             padding: '3vh 5vw 3vh 5vw',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            marginBottom: '0'
           }}
         >
           <h1>Items for Sale</h1>
@@ -43,7 +43,7 @@ function UserStatus() {
             <div> Loading </div>
           ) : (
             data.map((merchant, index) => (
-              <ItemCard merchant={merchant} onClick={() => navigate(`/buyerPayment?itemName=${merchant.items.itemName}&itemAddress=${merchant.address}`)} />
+              <ItemCard merchant={merchant} />
             ))
           )}
         </div>

@@ -53,6 +53,28 @@ router.post('/addItems', async (req, res) => {
 
 });
 
+// remove items
+router.post('/removeItems', async (req, res) => {
+
+    const { itemName, itemPrice, address } = req.body;
+
+    let merchant = await Merchant.findOne({ address });
+    if (!merchant) {
+        return res.status(400).send('Merchant does not exist');
+    }
+    let newItems = [];
+    for(let i = 0; i < merchant.items.length; i ++) {
+        if (merchant.items.itemName != itemName || merchant.items.itemPrice != itemPrice) {
+            newItems.push(merchant.items[i]);
+        }
+    }
+
+    merchant.items = newItems;
+    await merchant.save();
+    await res.status(200).send(address);
+
+});
+
 // get items 
 router.get('/getItems', async (req, res) => {
 

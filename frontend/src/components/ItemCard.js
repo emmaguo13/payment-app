@@ -1,63 +1,74 @@
 import React from 'react';
-import { Button } from 'antd';
-import axios from 'axios';
+import { Button, Image } from 'antd';
+import {navigate} from '@reach/router';
 
 const ItemCard = (props) => {
-  const { admin, deed, onClick, onConfirm, onDeny } = props;
+  const { merchant } = props;
 
   return (
     <div
-      key={deed.deedId}
-      style={{
-        width: '60vw',
-        height: '4vw',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        margin: '1.5vw',
-        borderRadius: '4vw',
-        padding: '0 2vw 0 2vw',
-      }}
+     style={{
+      backgroundColor: '#697FCB',
+      display: 'flex',
+      borderRadius: '3vw',
+      flexDirection: 'column',
+      width: '1000px',
+      height: 'auto',
+      marginBottom: '5vw',
+      paddingBottom:'2vw'
+     }}
     >
-      <div>{deed.deedId}</div>
-      <div style={{ width: '15vw', textAlign: 'center' }}>{deed.name}</div>
-      <Button
-        type="link"
-        onClick={() =>
-          window.open(
-            `${process.env.REACT_APP_SERVER_URL}/api/deed/pdf?deedId=${deed.deedId}`,
-            '_blank'
-          )
-        }
+      <div
+      style={{
+        fontWeight:'800',
+        margin: 'auto',
+        marginTop: '20px',
+        alignItems:'center',
+        display: 'flex',
+        fontSize: '30px'
+
+      }}
+      >{merchant.name}'s shop</div>
+      <div
+        style={{
+          flexWrap: 'wrap',
+          display: 'flex',
+          margin:'auto',
+          justifyContent: 'center'
+        }}
       >
-        Get PDF
-      </Button>
-      {admin ? (
-        <div>
-          <Button onClick={onConfirm} disabled={deed.status != 'P'}>
-            {deed.status == 'P' ? 'Confirm' : 'Confirmed'}
-          </Button>
-          <Button onClick={onDeny} disabled={deed.status != 'P'}>
-            Deny
-          </Button>
-        </div>
-      ) : (
-        <div style={{ width: '7vw', textAlign: 'center' }}>{statusWord[deed.status]}</div>
-      )}
-      <Button type="link" onClick={onClick}>
-        More Details
-      </Button>
+    {merchant.items.map((item, index) => (
+        <div
+        key={item.itemName}
+        style={{
+          width: 'auto',
+        height: 'auto',
+        backgroundColor: '#FFFFFF',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          margin: '1.5vw',
+          borderRadius: '1vw',
+        padding: '0 2vw 0 2vw',
+  
+        }}
+      >
+        <Image></Image>
+        <div>{item.itemName}</div>
+        <div style={{ width: '15vw', textAlign: 'center' }}>${item.itemPrice}</div>
+        <Button
+          type="link"
+          onClick={() => navigate(`/buyerPayment?item=${item.itemName}&price=${item.itemPrice}&email=${merchant.email}&address=${merchant.address}`)
+          }
+        >
+          Buy Item
+        </Button>
+      </div>
+    ))}
+    </div>
     </div>
   );
-};
-
-const statusWord = {
-  P: 'Pending',
-  C: 'Confirmed',
-  D: 'Disputed',
-  R: 'Rejected',
 };
 
 export default ItemCard;
