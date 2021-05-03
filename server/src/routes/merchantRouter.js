@@ -22,15 +22,23 @@ router.post('/newMerchant', async (req, res) => {
         return res.status(400).send('No address found');
     }
 
-    // create merchant
-    let newMerchant = new Merchant({
-        name,
-        items,
-        address,
-        email,
-    });
-    await newMerchant.save();
-    
+    let merchant = await Merchant.findOne({ email });
+    console.log(merchant)
+    if (merchant) {
+        console.log('found same merchant')
+        merchant.items.push(items);
+        await merchant.save();
+    } else {
+        // create merchant
+        let newMerchant = new Merchant({
+            name,
+            items,
+            address,
+            email,
+        });
+        await newMerchant.save();
+    }
+   
     // return address
     await res.status(200).send(address);
 

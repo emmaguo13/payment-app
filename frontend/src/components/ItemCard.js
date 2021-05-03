@@ -55,7 +55,7 @@ const ItemCard = (props) => {
         }}
       >
         <Image></Image>
-        <div>{item.itemName}</div>
+        <div style={{marginTop:"5px"}}>{item.itemName}</div>
         <div style={{ width: '15vw', textAlign: 'center' }}>${item.itemPrice}</div>
         <Button
           type="link"

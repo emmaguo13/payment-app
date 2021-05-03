@@ -39,7 +39,7 @@ function Form() {
       method: 'POST',
     }).then((response) => {
       console.log('merchant address', response.body);
-      navigate(`/buyerPayment`);
+      navigate(`/`);
     });
   }
 
@@ -114,7 +114,7 @@ function Form() {
             onClick={handleSubmit}
             className="button button--secondary"
           >
-            Apply 
+            List
           </Button>
         </div>
     </>
