@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Tabs, Input, Upload, message } from 'antd';
-import { LCDClient, MnemonicKey, MsgSend } from '@terra-money/terra.js';
+import { LCDClient, MnemonicKey, MsgSend, Coin } from '@terra-money/terra.js';
 import { useLocation } from '@reach/router'
 import { parse } from 'query-string'
 require('dotenv').config();
@@ -12,17 +12,19 @@ function Payment() {
   const [buyerEmail, setBuyerEmail] = useState('');
   const [buyerName, setBuyerName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [generatedAddress, setGeneratedAddress] = useState();
+  const [generatedMk, setGeneratedMk] = useState();
 
   const location = useLocation();
-    const searchParams = parse(location.search)
-    console.log(searchParams)
-  
-  function handleSubmit() {
-    console.log(process.env.REACT_APP_SERVER_URL);
+  const searchParams = parse(location.search)
+  console.log(searchParams)
 
+  function handleGenerate() {
     // create a key out of a mnemonic
     const mk = new MnemonicKey();
     const address = mk.accAddress
+    setGeneratedAddress(address);
+    setGeneratedMk(mk);
     console.log(address)
 
     //get chosen item
@@ -43,26 +45,30 @@ function Payment() {
         'Content-Type': 'application/json',
       },
       method: 'POST',
-    }).then((response) => {
-      console.log('merchant address', response.body);
     });
+  }
+  
+  function handleSubmit() {
+    console.log(process.env.REACT_APP_SERVER_URL);
 
     //make transaction 
     // connect to soju testnet
      const terra = new LCDClient({
-        URL: 'https://soju-lcd.terra.dev',
-        chainID: 'soju-0014',
+        URL: 'https://lcd.terra.dev',
+        chainID: 'columbus-3',
     });
+
+    // terra.market.swapRate(new Coin('uluna', 10000), 'ukrw').then(c => console.log(c.toString()))
 
     // a wallet can be created out of any key
     // wallets abstract transaction building
-    const wallet = terra.wallet(mk);
+    const wallet = terra.wallet(generatedMk);
 
     // create a simple message that moves coin balances
     const send = new MsgSend(
+    generatedAddress,
     searchParams.address,
-    address,
-    { uusd: searchParams.price }
+    { uluna: searchParams.price, ukrw: 0, uusd: 0 }
     );
 
     wallet
@@ -70,20 +76,20 @@ function Payment() {
         msgs: [send],
         memo: 'test from terra.js!',
     })
-    .then(tx => terra.tx.broadcast(tx))
+    .then(tx => terra.tx.broadcast(tx)).catch((error) => console.log(error))
     .then(result => {
         console.log(`TX hash: ${result.txhash}`);
         setLoading(false)
     });
-    /*
+    
     if (!loading) {
-    //remove from buyer
+    //remove from merchant
     fetch(`${process.env.REACT_APP_SERVER_URL}/api/merchant/removeItems`, {
         body: JSON.stringify({
 
-            itemName: item,
-            itemPrice: price, 
-            address: add,
+            itemName: searchParams.item,
+            itemPrice: searchParams.price, 
+            address: searchParams.address,
           }),
           headers: {
             'Content-Type': 'application/json',
@@ -92,22 +98,21 @@ function Payment() {
     })
     //email
     fetch(`${process.env.REACT_APP_SERVER_URL}/api/buyer/email`, {
-        body: JSON.stringify({
-
-            itemName: item,
-            itemPrice: price, 
-            email,
-            address: add,
+        body: JSON.stringify({ 
+            buyerEmail: buyerEmail,
+            merchantEmail: searchParams.email,
+            items: {
+              itemName: searchParams.item,
+              itemPrice: searchParams.price,
+            },
+            address: generatedAddress,
           }),
           headers: {
             'Content-Type': 'application/json',
           },
           method: 'POST',
-    }) 
-
+      }) 
     }
-    */
-
   }
 
   return (
@@ -144,17 +149,29 @@ function Payment() {
                   multiple
                   text="email"
                 />
+                 <div style={{ fontSize: '15px', marginTop: '2vh' }}>{generatedAddress}</div>
                 
               </div>
             </div>
           </div>
-          <Button
-            type="primary"
-            onClick={handleSubmit}
-            className="button button--secondary"
-          >
-            Complete Purchase 
-          </Button>
+          {generatedAddress ? (
+             <Button
+              type="primary"
+              onClick={handleSubmit}
+              className="button button--secondary"
+            >
+              Submit Purchase
+            </Button>           
+          ): (
+            <Button
+              type="primary"
+              onClick={handleGenerate}
+              className="button button--secondary"
+            >
+              Generate Address
+            </Button>
+          )
+          }
         </div>
     </>
   );
