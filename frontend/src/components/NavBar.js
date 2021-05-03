@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Link } from '@reach/router';
-import Logo from './Logo'
+import React, { useState } from "react";
+import { Link } from "@reach/router";
+import Logo from "./Logo";
 
-const MenuItem = ({ children, icon = null, className = '', ...props }) => (
+const MenuItem = ({ children, icon = null, className = "", ...props }) => (
   <Link
     {...props}
     className={className}
     getProps={({ isPartiallyCurrent }) => ({
-      className: isPartiallyCurrent ? `${className} nav-item--active` : '',
+      className: isPartiallyCurrent ? `${className} nav-item--active` : "",
     })}
   >
     {icon}
@@ -16,7 +16,7 @@ const MenuItem = ({ children, icon = null, className = '', ...props }) => (
 );
 
 const Navbar = () => {
-  const [current, setCurrent] = useState('mail');
+  const [current, setCurrent] = useState("mail");
 
   function handleClick(e) {
     setCurrent(e.key);
@@ -25,7 +25,7 @@ const Navbar = () => {
   return (
     <header>
       <nav>
-        <MenuItem  icon={<Logo />} to="/" className="nav-item--primary">
+        <MenuItem icon={<Logo />} to="/" className="nav-item--primary">
           TerraPay
         </MenuItem>
 
@@ -40,4 +40,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
